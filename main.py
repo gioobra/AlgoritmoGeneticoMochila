@@ -1,61 +1,44 @@
-import numpy as np
-import matplotlib.pyplot as plt 
+MAX_GERACOES = 10
+def AGCanonico(populacao, n, r, pCross, pMut):
+    '''
+    n = quantidade da populacao (r = n normalmente)
+    r = quantidade dos descendentes (r = n normalmente)
+    pCross = probabilidade de crossover (0.8 tipico)
+    pMut = probabilidade de mutacao (0.05 tipico)
+    '''
+    while(geracao < MAX_GERACOES): # and (objetivo nao foi alcancado) and (melhor fitness nao esta estagnado)
+        objetivo = []
+        for c in populacao:
+            Fitness(c)
+        geracao = 0
+        populacaoSelecionada = Roleta(r)
+        descendentesCruzados = []
+        for pai1,pai2 in populacaoSelecionada:
+            if (Random(0,1) < pCross): # numeros decimais entre 0 e 1, decidir com quantas casas decimais
+                filho1, filho2 = Cruzar(pai1, pai2) # descobrir qual vetor guarda as infos de pai e filho
+            else: 
+                filho1, filho2 = pai1, pai2
+            descendentesCruzados.append(filho1, filho2)
+        descendentesMutados = []
+        for c in descendentesCruzados:
+            for alelo(gene) in c: # entender melhor essa parte de alelo e gene
+                if(Random(0,1) < pMut):
+                    pass # ToDo altera o valor do alelo
+            descendentesMutados.append(c)
+        for c in descendentesMutados:
+            Fitness(c)
+        populacaoTotal = Unir(populacao, descendentesMutados)    
+        populacao = melhores(c) # entender como armazenar os melhores
+        geracao = geracao + 1
+    
+    return c 
+    
 
-POP_SIZE = 40
-GENERATIONS = 100
-X_MIN, X_MAX = -0.1, 2.0
-CROSSOVER_PROB = 0.9
-MUTATION_PROB = 0.2
-MUTATION_STD = 0.1 
+def Fitness(c):
+    pass
 
-np.random.seed(42)
-population = np.random.uniform(X_MIN, X_MAX, POP_SIZE)
+def Roleta(r):
+    pass
 
-def fitness_function(x):
-    return x * np.sin(10* np.pi * x) + 1
-
-def tournament_selection(pop, fitness, k=3):
-    selected = []
-    for _ in range(len(pop)):
-        idx = np.random.choice(len(pop), k, replace=False)
-        selected.append(pop[idx[np.argmax(fitness[idx])]])
-    return np.array(selected)
-
-def arithmetic_crossover(p1, p2):
-    alpha = np.random.rand()
-    return alpha * p1 + (1 - alpha) * p2, alpha * p2 + (1 - alpha) * p1
-
-def mutate(x):
-    if np.random.rand() < MUTATION_PROB:
-        x += np.random.normal(0, MUTATION_STD)
-    return np.clip(x, X_MIN, X_MAX)
-
-best_history = []
-mean_history = []
-for _ in range(GENERATIONS):
-    fitness = fitness_function(population)
-    best_history.append(np.max(fitness))
-    mean_history.append(np.mean(fitness))
-    parents = tournament_selection(population, fitness)
-    offspring = []
-    np.random.shuffle(parents)
-    for i in range(0, POP_SIZE, 2):
-        if np.random.rand() < CROSSOVER_PROB:
-            c1, c2 = arithmetic_crossover(parents[i], parents[i + 1])
-        else:
-            c1, c2 = parents[i], parents[i + 1]
-        offspring.extend([mutate(c1), mutate(c2)])
-    population = np.array(offspring)
-
-    x = np.linspace(X_MIN, X_MAX, 500)
-
-plt.figure()
-plt.plot(best_history, label="Best Fitness")
-plt.plot(mean_history, label="Mean Fitness")
-plt.legend()
-plt.show()
-
-plt.figure()
-plt.plot(x, fitness_function(x))
-plt.scatter(population, fitness_function(population))
-plt.show()
+def Cruzar(i, j):
+    pass
