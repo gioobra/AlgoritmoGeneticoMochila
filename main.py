@@ -1,6 +1,10 @@
 import random
 
 MAX_GERACOES = 10
+PESOS_DOS_ITENS = [2, 5, 7, 3, 1]
+VALORES_DOS_ITENS = [10, 20, 15, 18, 25]
+LIMITE_DE_PESO = 15
+
 def AGCanonico(populacao, n, r, pCross, pMut):
     '''
     n = quantidade da populacao (r = n normalmente)
@@ -12,7 +16,7 @@ def AGCanonico(populacao, n, r, pCross, pMut):
         Fitness(cromossomo)
     geracao = 0
 
-    while geracao < MAX_GERACOES and not Objetivo() and not MelhorFitnessEstagnado():
+    while geracao < MAX_GERACOES and not MelhorFitnessEstagnado():
         populacaoSelecionada = Roleta(populacao, r)
         descendentesCruzados = []
         for pai1,pai2 in AgruparEmPares(populacaoSelecionada):
@@ -20,19 +24,20 @@ def AGCanonico(populacao, n, r, pCross, pMut):
                 filho1, filho2 = Cruzar(pai1, pai2) 
             else: 
                 filho1, filho2 = pai1, pai2
-            descendentesCruzados.append(filho1, filho2)
+            descendentesCruzados.append(filho1)
+            descendentesCruzados.append(filho2)
         
         descendentesMutados = []
         for cromossomo in descendentesCruzados:
-            for alelo in cromossomo:
+            for i in range(len(cromossomo)):
                 if(random.random() < pMut):
-                    Mutacao(alelo)
+                    cromossomo[i] = Mutacao(cromossomo[i])
             descendentesMutados.append(cromossomo)
         
         for cromossomo in descendentesMutados:
             Fitness(cromossomo)
         populacaoTotal = populacao + descendentesMutados   
-        populacao = Melhores(populacao, n) 
+        populacao = Melhores(populacaoTotal, n) 
         geracao += 1
     
     return ObterMelhorCromossomo(populacao) 
@@ -44,37 +49,89 @@ def Melhores (populacao, n):
 def ObterMelhorCromossomo(populacao):
     pass
 
-def AgruparEmPares():
-    pass
+def AgruparEmPares(populacaoSelecionada):
+    pares = []
+
+    for i in range(0, len(populacaoSelecionada) - 1, 2):
+        pai1 = populacaoSelecionada[i]
+        pai2 = populacaoSelecionada[i+1]
+        pares.append((pai1, pai2))
+
+    return pares
 
 def MelhorFitnessEstagnado():
     pass    
 
-def Fitness(c):
-    peso = c[0]*1 + c[1]*2 #conta do peso da mochila, considerando que tudo dentro do vetor eh 0 ou 1
-    if peso <= 10: 
-        for i in c:
-            itens = itens + c[i]
-    #se o peso eh sempre menor ou igual o estipulado, o que pode variar mais eh o numero de itens, sendo assim a melhor mochila eh a que carrega o maior valor de peso com mais itens        
-    return peso + itens
+def Fitness(cromossomo):
+    pesoTotal = 0
+    valorTotal = 0
 
-def Roleta(r):
-    pass
+    for i in range(len(cromossomo)):
+        if cromossomo[i] == 1:
+            pesoTotal += PESOS_DOS_ITENS[i]
+            valorTotal += VALORES_DOS_ITENS[i]
+    
+    if pesoTotal > LIMITE_DE_PESO:
+        return 0 
+
+    return valorTotal
+
+def CalcularProbabilidades(populacao):
+    notas = []
+    probabilidades = []
+
+    for cromossomo in populacao:
+        notas.append(Fitness(cromossomo))
+    somaTotal = sum(notas)
+
+    if somaTotal == 0:
+        return [1.0 / len(populacao)] * len(populacao)
+    
+    for nota in notas:
+        probabilidades.append(nota / somaTotal)
+    
+    return probabilidades
+
+def GirarRoletaUmaVez(populacao, probabilidades):
+    i = 0
+    soma = probabilidades[i]
+    r = random.random()
+
+    while soma < r:
+        i += 1
+        soma += probabilidades[i]
+    
+    return populacao[i]
+
+def Roleta(populacao, r):
+    probabilidades = CalcularProbabilidades(populacao)
+    populacaoSelecionada = []
+
+    for _ in range(r):
+        vencedor = GirarRoletaUmaVez(populacao, probabilidades)
+        populacaoSelecionada.append(list(vencedor))
+    
+    return populacaoSelecionada
 
 def Mutacao(alelo):
-    pass
-
-def Cruzar(i, j):
-    pass
-
-def Objetivo():
-    x = 10 # max valor possivel da melhor mochila
-    y = 10 # max de itens possiveis da melhor mochila
-    peso = c[0]*1 + c[1]*2 #conta do peso da mochila, considerando que tudo dentro do vetor eh 0 ou 1
-    for i in c:
-        itens = itens + c[i]
-    if peso == x and itens == y:
-        return 1
+    if alelo == 1:
+        alelo = 0
     else:
-        return 0
+        alelo = 1
+    return alelo
+
+def Cruzar(pai1, pai2): #crossover// futuramente alterar para usar Slicing
+    posicao = random.randrange(len(pai1))
+    temp = 0
+    for i in range(posicao):
+        temp = pai1[i]
+        pai1[i] = pai2[i]
+        pai2[i] = temp
+
+    return pai1, pai2  
+
+
+def main():
+    populacao = []
+    print(AGCanonico(populacao, 4, 4, 0.8, 0.05))
     
