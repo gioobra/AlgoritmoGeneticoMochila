@@ -46,8 +46,8 @@ def AGCanonico(populacao, n, r, pCross, pMut):
         for cromossomo in descendentesMutados:
             Fitness(cromossomo)
 
-        populacaoTotal = populacao + descendentesMutados   
-        populacao = Melhores(populacaoTotal, n) 
+        # Reposicao geracional: a nova geracao e formada apenas pelos descendentes.
+        populacao = descendentesMutados[:n]
 
         novoMelhor = Fitness(ObterMelhorCromossomo(populacao))
         
