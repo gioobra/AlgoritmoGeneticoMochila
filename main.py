@@ -1,9 +1,11 @@
 import random
+import matplotlib.pyplot as plt
 
-MAX_GERACOES = 50
-PESOS_DOS_ITENS = [2, 5, 7, 3, 1]
-VALORES_DOS_ITENS = [10, 20, 15, 18, 25]
-LIMITE_DE_PESO = 15
+#SEED_EXPERIMENTO = 104
+MAX_GERACOES = 100
+PESOS_DOS_ITENS = [12, 7, 11, 8, 9, 6, 7, 3, 5, 9]
+VALORES_DOS_ITENS = [24,13, 23,15,16,12,13, 7, 9,17]
+LIMITE_DE_PESO = 35
 
 def AGCanonico(populacao, n, r, pCross, pMut):
     '''
@@ -15,11 +17,17 @@ def AGCanonico(populacao, n, r, pCross, pMut):
     for cromossomo in populacao:
         Fitness(cromossomo)
     geracao = 0
-    estagnado = 0
-    while geracao < MAX_GERACOES and estagnado != 5:
+    #estagnado = 0
+
+
+    historicoMelhorFitness = []
+    historicoFitnessMedio = []
+
+    while geracao < MAX_GERACOES: #and estagnado != 15:
         populacaoSelecionada = Roleta(populacao, r)
         descendentesCruzados = []
-        velhoMelhor = Fitness(ObterMelhorCromossomo(populacao))
+        #velhoMelhor = Fitness(ObterMelhorCromossomo(populacao))
+
         for pai1,pai2 in AgruparEmPares(populacaoSelecionada):
             if (random.random() < pCross): # decide entre 0.0 e 1.0
                 filho1, filho2 = Cruzar(pai1, pai2) 
@@ -37,16 +45,26 @@ def AGCanonico(populacao, n, r, pCross, pMut):
         
         for cromossomo in descendentesMutados:
             Fitness(cromossomo)
+
         populacaoTotal = populacao + descendentesMutados   
         populacao = Melhores(populacaoTotal, n) 
-        geracao += 1
+
         novoMelhor = Fitness(ObterMelhorCromossomo(populacao))
-        if novoMelhor > velhoMelhor:
-            estagnado = 0
-        else:
-            estagnado += 1
         
-    return ObterMelhorCromossomo(populacao) 
+        somaFitnessPopulacao = 0
+        for cromossomo in populacao:
+            somaFitnessPopulacao += Fitness(cromossomo)
+        fitnessMedio = somaFitnessPopulacao / len(populacao)
+        historicoMelhorFitness.append(novoMelhor)
+        historicoFitnessMedio.append(fitnessMedio)
+        
+        geracao += 1
+        # novoMelhor = Fitness(ObterMelhorCromossomo(populacao))
+        # if novoMelhor > velhoMelhor:
+        #     estagnado = 0
+        # else:
+        #     estagnado += 1
+    return ObterMelhorCromossomo(populacao), historicoMelhorFitness, historicoFitnessMedio, geracao 
 
 
 def Melhores (populacao, n):
@@ -140,17 +158,30 @@ def Cruzar(pai1, pai2): #crossover// futuramente alterar para usar Slicing (fun�
 
 
 def main():
-    # Itens: item1(2kg), item2(5kg), item3(7kg), item4(3kg), item5(1kg). Limite: 15kg
-    # solução perfeita: [1, 1, 0, 1, 1] (Fitness 73) -> grupo controle
+    #random.seed(SEED_EXPERIMENTO)
 
-    populacao_inicial = [
-        [0, 0, 0, 0, 0], 
-        [1, 1, 1, 1, 1], 
-        [1, 0, 0, 0, 1], 
-        [1, 1, 0, 0, 0]  
-    ]
-    melhor_mochila = AGCanonico(populacao_inicial, 4, 4, 0.8, 0.05)
-    print(f"O cromossomo vencedor foi: {melhor_mochila}")
+    populacaoInicial = []
+    for _ in range(50):
+        cromossomo = []
+        for _ in range(len(PESOS_DOS_ITENS)):
+            cromossomo.append(random.randint(0,1))
+        populacaoInicial.append(cromossomo)
+
+    melhorMochila, historicoMelhor, historicoMedio, totalGeracoes = AGCanonico(populacaoInicial, 50, 50, 0.8, 0.05)
+    print(f"O cromossomo vencedor foi: {melhorMochila} | Valor: {Fitness(melhorMochila)}")
+    print(f"Gerações até a convergência: {totalGeracoes}")
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(historicoMelhor, label='Melhor Fitness', color='green', linewidth=2)
+    plt.plot(historicoMedio, label='Fitness Médio', color='orange', linestyle='--')
+
+    plt.title('Evolução do Algoritmo Genético - Problema da Mochila')
+    plt.xlabel('Gerações')
+    plt.ylabel('Fitness')
+    plt.legend() 
+    plt.grid(True)
+
+    plt.show()
 
 main()
     
