@@ -1,6 +1,6 @@
 import random
 
-MAX_GERACOES = 10
+MAX_GERACOES = 50
 PESOS_DOS_ITENS = [2, 5, 7, 3, 1]
 VALORES_DOS_ITENS = [10, 20, 15, 18, 25]
 LIMITE_DE_PESO = 15
@@ -15,10 +15,11 @@ def AGCanonico(populacao, n, r, pCross, pMut):
     for cromossomo in populacao:
         Fitness(cromossomo)
     geracao = 0
-
-    while geracao < MAX_GERACOES and not MelhorFitnessEstagnado():
+    estagnado = 0
+    while geracao < MAX_GERACOES and estagnado != 5:
         populacaoSelecionada = Roleta(populacao, r)
         descendentesCruzados = []
+        velhoMelhor = Fitness(ObterMelhorCromossomo(populacao))
         for pai1,pai2 in AgruparEmPares(populacaoSelecionada):
             if (random.random() < pCross): # decide entre 0.0 e 1.0
                 filho1, filho2 = Cruzar(pai1, pai2) 
@@ -39,15 +40,25 @@ def AGCanonico(populacao, n, r, pCross, pMut):
         populacaoTotal = populacao + descendentesMutados   
         populacao = Melhores(populacaoTotal, n) 
         geracao += 1
-    
+        novoMelhor = Fitness(ObterMelhorCromossomo(populacao))
+        if novoMelhor > velhoMelhor:
+            estagnado = 0
+        else:
+            estagnado += 1
+        
     return ObterMelhorCromossomo(populacao) 
 
 
 def Melhores (populacao, n):
-    pass
+    #cria uma lista nova, diferente do sort() que ordena na propria lista, e utiliza o parametro key como critério de ordenação
+    populacao_ordenada = sorted(populacao, key=Fitness, reverse=True) 
+    escolhidos = populacao_ordenada[:n]
+    return escolhidos
 
 def ObterMelhorCromossomo(populacao):
-    pass
+    #pode usar a funcao max() do python que retorna diretamente o maior valor da lista usando menos recursos
+    populacao_ordenada = sorted(populacao, key=Fitness, reverse=True)
+    return populacao_ordenada[0]
 
 def AgruparEmPares(populacaoSelecionada):
     pares = []
@@ -58,9 +69,6 @@ def AgruparEmPares(populacaoSelecionada):
         pares.append((pai1, pai2))
 
     return pares
-
-def MelhorFitnessEstagnado():
-    pass    
 
 def Fitness(cromossomo):
     pesoTotal = 0
@@ -120,7 +128,7 @@ def Mutacao(alelo):
         alelo = 1
     return alelo
 
-def Cruzar(pai1, pai2): #crossover// futuramente alterar para usar Slicing
+def Cruzar(pai1, pai2): #crossover// futuramente alterar para usar Slicing (função de python)
     posicao = random.randrange(len(pai1))
     temp = 0
     for i in range(posicao):
@@ -132,6 +140,17 @@ def Cruzar(pai1, pai2): #crossover// futuramente alterar para usar Slicing
 
 
 def main():
-    populacao = []
-    print(AGCanonico(populacao, 4, 4, 0.8, 0.05))
+    # Itens: item1(2kg), item2(5kg), item3(7kg), item4(3kg), item5(1kg). Limite: 15kg
+    # solução perfeita: [1, 1, 0, 1, 1] (Fitness 73) -> grupo controle
+
+    populacao_inicial = [
+        [0, 0, 0, 0, 0], 
+        [1, 1, 1, 1, 1], 
+        [1, 0, 0, 0, 1], 
+        [1, 1, 0, 0, 0]  
+    ]
+    melhor_mochila = AGCanonico(populacao_inicial, 4, 4, 0.8, 0.05)
+    print(f"O cromossomo vencedor foi: {melhor_mochila}")
+
+main()
     
