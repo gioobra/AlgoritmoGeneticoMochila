@@ -1,6 +1,7 @@
 import random
 import matplotlib.pyplot as plt
 
+#SEED_EXPERIMENTO = 104
 MAX_GERACOES = 100
 PESOS_DOS_ITENS = [12, 7, 11, 8, 9, 6, 7, 3, 5, 9]
 VALORES_DOS_ITENS = [24,13, 23,15,16,12,13, 7, 9,17]
@@ -16,16 +17,16 @@ def AGCanonico(populacao, n, r, pCross, pMut):
     for cromossomo in populacao:
         Fitness(cromossomo)
     geracao = 0
-    estagnado = 0
-    objetivo = 0
+    #estagnado = 0
+
 
     historicoMelhorFitness = []
     historicoFitnessMedio = []
 
-    while geracao < MAX_GERACOES and estagnado != 20 and objetivo != 71:
+    while geracao < MAX_GERACOES: #and estagnado != 15:
         populacaoSelecionada = Roleta(populacao, r)
         descendentesCruzados = []
-        velhoMelhor = Fitness(ObterMelhorCromossomo(populacao))
+        #velhoMelhor = Fitness(ObterMelhorCromossomo(populacao))
 
         for pai1,pai2 in AgruparEmPares(populacaoSelecionada):
             if (random.random() < pCross): # decide entre 0.0 e 1.0
@@ -58,13 +59,11 @@ def AGCanonico(populacao, n, r, pCross, pMut):
         historicoFitnessMedio.append(fitnessMedio)
         
         geracao += 1
-        novoMelhor = Fitness(ObterMelhorCromossomo(populacao))
-        if novoMelhor > velhoMelhor:
-            estagnado = 0
-        else:
-            estagnado += 1
-        objetivo = Fitness(ObterMelhorCromossomo(populacao))
-        
+        # novoMelhor = Fitness(ObterMelhorCromossomo(populacao))
+        # if novoMelhor > velhoMelhor:
+        #     estagnado = 0
+        # else:
+        #     estagnado += 1
     return ObterMelhorCromossomo(populacao), historicoMelhorFitness, historicoFitnessMedio, geracao 
 
 
@@ -159,10 +158,12 @@ def Cruzar(pai1, pai2): #crossover// futuramente alterar para usar Slicing (fun√
 
 
 def main():
+    #random.seed(SEED_EXPERIMENTO)
+
     populacaoInicial = []
     for _ in range(50):
         cromossomo = []
-        for _ in range (10):
+        for _ in range(len(PESOS_DOS_ITENS)):
             cromossomo.append(random.randint(0,1))
         populacaoInicial.append(cromossomo)
 
