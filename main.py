@@ -43,10 +43,7 @@ def AGCanonico(populacao, n, r, pCross, pMut):
                     cromossomo[i] = Mutacao(cromossomo[i])
             descendentesMutados.append(cromossomo)
         
-        for cromossomo in descendentesMutados:
-            Fitness(cromossomo)
-
-        populacaoTotal = populacao + descendentesMutados   
+        populacaoTotal = populacao + descendentesMutados
         populacao = Melhores(populacaoTotal, n) 
 
         novoMelhor = Fitness(ObterMelhorCromossomo(populacao))
