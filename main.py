@@ -1,7 +1,7 @@
 import random
 import matplotlib.pyplot as plt
 
-MAX_GERACOES = 50
+MAX_GERACOES = 100
 PESOS_DOS_ITENS = [2, 5, 7, 3, 1]
 VALORES_DOS_ITENS = [10, 20, 15, 18, 25]
 LIMITE_DE_PESO = 15
@@ -51,8 +51,9 @@ def AGCanonico(populacao, n, r, pCross, pMut):
 
         novoMelhor = Fitness(ObterMelhorCromossomo(populacao))
         
+        somaFitnessPopulacao = 0
         for cromossomo in populacao:
-            somaFitnessPopulacao += somaFitnessPopulacao + Fitness(cromossomo)
+            somaFitnessPopulacao += Fitness(cromossomo)
         fitnessMedio = somaFitnessPopulacao / len(populacao)
         historicoMelhorFitness.append(novoMelhor)
         historicoFitnessMedio.append(fitnessMedio)
