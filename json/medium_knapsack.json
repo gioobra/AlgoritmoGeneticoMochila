@@ -1,0 +1,19 @@
+[
+    {"weight": 70, "value": 135}, {"weight": 73, "value": 139}, {"weight": 77, "value": 149},
+    {"weight": 80, "value": 150}, {"weight": 82, "value": 156}, {"weight": 87, "value": 163},
+    {"weight": 90, "value": 173}, {"weight": 94, "value": 184}, {"weight": 98, "value": 192},
+    {"weight": 106, "value": 201}, {"weight": 110, "value": 210}, {"weight": 113, "value": 214},
+    {"weight": 115, "value": 221}, {"weight": 118, "value": 229}, {"weight": 120, "value": 240},
+    {"weight": 20, "value": 50}, {"weight": 25, "value": 55}, {"weight": 30, "value": 80},
+    {"weight": 35, "value": 85}, {"weight": 40, "value": 110}, {"weight": 45, "value": 115},
+    {"weight": 50, "value": 130}, {"weight": 55, "value": 140}, {"weight": 60, "value": 160},
+    {"weight": 10, "value": 20}, {"weight": 15, "value": 45}, {"weight": 65, "value": 150},
+    {"weight": 12, "value": 30}, {"weight": 18, "value": 40}, {"weight": 22, "value": 60},
+    {"weight": 28, "value": 70}, {"weight": 33, "value": 90}, {"weight": 38, "value": 100},
+    {"weight": 42, "value": 120}, {"weight": 48, "value": 140}, {"weight": 52, "value": 150},
+    {"weight": 58, "value": 170}, {"weight": 62, "value": 180}, {"weight": 68, "value": 200},
+    {"weight": 72, "value": 210}, {"weight": 78, "value": 230}, {"weight": 82, "value": 240},
+    {"weight": 88, "value": 260}, {"weight": 92, "value": 270}, {"weight": 98, "value": 290},
+    {"weight": 102, "value": 300}, {"weight": 108, "value": 320}, {"weight": 112, "value": 330},
+    {"weight": 118, "value": 350}, {"weight": 122, "value": 360}
+]

@@ -1,11 +1,15 @@
 import random
+import json
+from pathlib import Path
 import matplotlib.pyplot as plt
 
-SEED_EXPERIMENTO = 67
+SEED_EXPERIMENTO = 0
+LIMITE_DE_PESO = 0
+TAMANHO_POPULACAO = 0
+PESOS_DOS_ITENS = []
+VALORES_DOS_ITENS = []
 MAX_GERACOES = 100
-PESOS_DOS_ITENS = [12, 7, 11, 8, 9, 6, 7, 3, 5, 9]
-VALORES_DOS_ITENS = [24,13, 23,15,16,12,13, 7, 9,17]
-LIMITE_DE_PESO = 35
+PERFIL_EXECUCAO = "medium"
 
 def AGCanonico(populacao, n, r, pCross, pMut):
     '''
@@ -153,32 +157,75 @@ def Cruzar(pai1, pai2): #crossover// futuramente alterar para usar Slicing (fun�
 
     return pai1, pai2  
 
+def carregar_configuracoes():
+    base_dir = Path(__file__).resolve().parent
+    pasta_json = base_dir / "json"
 
-def main():
+    with (pasta_json / "config_sa.json").open(encoding="utf-8") as arquivo:
+        configuracoes = json.load(arquivo)
+
+    return configuracoes, pasta_json
+
+def configurar_mochila(config, pasta_json):
+    global SEED_EXPERIMENTO
+    global LIMITE_DE_PESO
+    global TAMANHO_POPULACAO
+    global PESOS_DOS_ITENS
+    global VALORES_DOS_ITENS
+
+    caminho_itens = pasta_json / config["file"]
+
+    with caminho_itens.open(encoding="utf-8") as arquivo:
+        itens = json.load(arquivo)
+
+    PESOS_DOS_ITENS = [item["weight"] for item in itens]
+    VALORES_DOS_ITENS = [item["value"] for item in itens]
+    SEED_EXPERIMENTO = config["seed"]
+    LIMITE_DE_PESO = config["pesoMax"]
+    TAMANHO_POPULACAO = config["populacao"]
+
     random.seed(SEED_EXPERIMENTO)
 
+def main():
+    configuracoes, pasta_json = carregar_configuracoes()
+    if PERFIL_EXECUCAO not in configuracoes:
+        raise ValueError(
+            f"Perfil '{PERFIL_EXECUCAO}' não encontrado em config_sa.json. "
+            f"Perfis disponíveis: {', '.join(configuracoes.keys())}."
+        )
+
+    configurar_mochila(configuracoes[PERFIL_EXECUCAO], pasta_json)
+
     populacaoInicial = []
-    for _ in range(50):
+    for _ in range(TAMANHO_POPULACAO):
         cromossomo = []
         for _ in range(len(PESOS_DOS_ITENS)):
             cromossomo.append(random.randint(0,1))
         populacaoInicial.append(cromossomo)
 
-    melhorMochila, historicoMelhor, historicoMedio, totalGeracoes = AGCanonico(populacaoInicial, 50, 50, 0.8, 0.05)
-    print(f"O cromossomo vencedor foi: {melhorMochila} | Valor: {Fitness(melhorMochila)}")
-    print(f"Gerações até a convergência: {totalGeracoes}")
+    melhorMochila, historicoMelhor, historicoMedio, totalGeracoes = AGCanonico(
+        populacaoInicial,
+        TAMANHO_POPULACAO,
+        TAMANHO_POPULACAO,
+        0.8,
+        0.05,
+    )
+
+    print(f"[{PERFIL_EXECUCAO}] O cromossomo vencedor foi: {melhorMochila} | Valor: {Fitness(melhorMochila)}")
+    print(f"[{PERFIL_EXECUCAO}] Gerações até a convergência: {totalGeracoes}")
 
     plt.figure(figsize=(10, 6))
-    plt.plot(historicoMelhor, label='Melhor Fitness', color='green', linewidth=2)
-    plt.plot(historicoMedio, label='Fitness Médio', color='orange', linestyle='--')
-
-    plt.title('Evolução do Algoritmo Genético - Problema da Mochila')
-    plt.xlabel('Gerações')
-    plt.ylabel('Fitness')
-    plt.legend() 
+    plt.plot(historicoMelhor, label="Melhor Fitness", color="green", linewidth=2)
+    plt.plot(historicoMedio, label="Fitness Médio", color="orange", linestyle="--")
+    plt.title(f"Evolução do AG - Mochila {PERFIL_EXECUCAO}")
+    plt.xlabel("Gerações")
+    plt.ylabel("Fitness")
+    plt.legend()
     plt.grid(True)
 
     plt.show()
 
-main()
+
+if __name__ == "__main__":
+    main()
     
