@@ -3,18 +3,18 @@
         "file": "small_knapsack.json",
         "pesoMax": 60,
         "populacao": 10,
-        "seed": 67
+        "seed": 3141
     },
     "medium": {
         "file": "medium_knapsack.json",
         "pesoMax": 750,
         "populacao": 100,
-        "seed": 67
+        "seed": 3141
     },
     "big": {
         "file": "big_knapsack.json",
         "pesoMax": 12947,
-        "populacao": 100,
-        "seed": 67
+        "populacao": 500,
+        "seed": 3141
     }
 }

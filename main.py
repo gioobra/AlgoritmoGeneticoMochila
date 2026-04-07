@@ -9,7 +9,6 @@ TAMANHO_POPULACAO = 0
 PESOS_DOS_ITENS = []
 VALORES_DOS_ITENS = []
 MAX_GERACOES = 100
-PERFIL_EXECUCAO = "medium"
 
 def AGCanonico(populacao, n, r, pCross, pMut):
     '''
@@ -188,39 +187,57 @@ def configurar_mochila(config, pasta_json):
 
 def main():
     configuracoes, pasta_json = carregar_configuracoes()
-    if PERFIL_EXECUCAO not in configuracoes:
+    perfis_execucao = ["small", "medium", "big"]
+
+    perfis_faltantes = [perfil for perfil in perfis_execucao if perfil not in configuracoes]
+    if perfis_faltantes:
         raise ValueError(
-            f"Perfil '{PERFIL_EXECUCAO}' não encontrado em config_sa.json. "
-            f"Perfis disponíveis: {', '.join(configuracoes.keys())}."
+            f"Perfis ausentes em config_sa.json: {', '.join(perfis_faltantes)}."
         )
 
-    configurar_mochila(configuracoes[PERFIL_EXECUCAO], pasta_json)
+    historico_melhor_por_perfil = {}
+    historico_medio_por_perfil = {}
 
-    populacaoInicial = []
-    for _ in range(TAMANHO_POPULACAO):
-        cromossomo = []
-        for _ in range(len(PESOS_DOS_ITENS)):
-            cromossomo.append(random.randint(0,1))
-        populacaoInicial.append(cromossomo)
+    for perfil in perfis_execucao:
+        configurar_mochila(configuracoes[perfil], pasta_json)
 
-    melhorMochila, historicoMelhor, historicoMedio, totalGeracoes = AGCanonico(
-        populacaoInicial,
-        TAMANHO_POPULACAO,
-        TAMANHO_POPULACAO,
-        0.8,
-        0.05,
-    )
+        populacaoInicial = []
+        for _ in range(TAMANHO_POPULACAO):
+            cromossomo = []
+            for _ in range(len(PESOS_DOS_ITENS)):
+                cromossomo.append(random.randint(0,1))
+            populacaoInicial.append(cromossomo)
 
-    print(f"[{PERFIL_EXECUCAO}] O cromossomo vencedor foi: {melhorMochila} | Valor: {Fitness(melhorMochila)}")
-    print(f"[{PERFIL_EXECUCAO}] Gerações até a convergência: {totalGeracoes}")
+        melhorMochila, historicoMelhor, historicoMedio, totalGeracoes = AGCanonico(
+            populacaoInicial,
+            TAMANHO_POPULACAO,
+            TAMANHO_POPULACAO,
+            0.8,
+            0.05,
+        )
+
+        historico_melhor_por_perfil[perfil] = historicoMelhor
+        historico_medio_por_perfil[perfil] = historicoMedio
+
+        print(f"[{perfil}] O cromossomo vencedor foi: {melhorMochila} | Valor: {Fitness(melhorMochila)}")
+        print(f"[{perfil}] Gerações até a convergência: {totalGeracoes}")
 
     plt.figure(figsize=(10, 6))
-    plt.plot(historicoMelhor, label="Melhor Fitness", color="green", linewidth=2)
-    plt.plot(historicoMedio, label="Fitness Médio", color="orange", linestyle="--")
-    plt.title(f"Evolução do AG - Mochila {PERFIL_EXECUCAO}")
+    for perfil in perfis_execucao:
+        plt.plot(historico_melhor_por_perfil[perfil], label=perfil)
+    plt.title("Melhor Fitness por Geração")
     plt.xlabel("Gerações")
-    plt.ylabel("Fitness")
-    plt.legend()
+    plt.ylabel("Melhor Fitness")
+    plt.legend(title="Mochila")
+    plt.grid(True)
+
+    plt.figure(figsize=(10, 6))
+    for perfil in perfis_execucao:
+        plt.plot(historico_medio_por_perfil[perfil], label=perfil)
+    plt.title("Fitness Médio por Geração")
+    plt.xlabel("Gerações")
+    plt.ylabel("Fitness Médio")
+    plt.legend(title="Mochila")
     plt.grid(True)
 
     plt.show()
